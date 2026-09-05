@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mahakal Mobile Hub • Repair Master Pro</title>
+<meta name="theme-color" content="#05070f">
+<style>
+:root {
+  --bg: #06080f;
+  --card: #0f1420;
+  --card2: #151b2b;
+  --border: rgba(255,255,255,0.07);
+  --gold: #f5b942;
+  --blue: #3b9eff;
+  --green: #2dd4a0;
+  --red: #f07178;
+  --purple: #9b7bff;
+  --text: #eef2f7;
+  --dim: #8b95a8;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Devanagari", sans-serif;
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+header {
+  position: sticky; top: 0; z-index: 40;
+  background: rgba(6,8,15,0.92);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 16px 10px;
+}
+.logo-row { display: flex; align-items: center; gap: 10px; }
+.logo-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, #f5b942, #e8a317);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: #111; font-weight: 900;
+}
+.logo-text h1 { font-size: 15px; font-weight: 800; letter-spacing: 0.2px; }
+.logo-text p { font-size: 10px; color: var(--gold); margin-top: 1px; font-weight: 600; }
+.status-pill {
+  margin-top: 8px; display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--dim); padding: 4px 10px;
+  background: rgba(255,255,255,0.04); border-radius: 20px; border: 1px solid var(--border);
+}
+.status-pill.on { color: var(--green); border-color: rgba(45,212,160,0.3); }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
+.status-pill.on .dot { background: var(--green); box-shadow: 0 0 6px var(--green); }
+
+.main { flex: 1; padding: 12px 14px 90px; overflow-y: auto; }
+
+/* TOOL GRID */
+.section-label {
+  font-size: 11px; font-weight: 700; color: var(--dim);
+  text-transform: uppercase; letter-spacing: 0.8px; margin: 14px 0 8px;
+}
+.tool-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+.tool-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 12px; cursor: pointer;
+  transition: border-color 0.15s, transform 0.1s;
+  touch-action: manipulation;
+}
+.tool-card:active { transform: scale(0.97); }
+.tool-card .icon {
+  width: 34px; height: 34px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; margin-bottom: 8px;
+}
+.tool-card h3 { font-size: 12.5px; font-weight: 700; line-height: 1.3; }
+.tool-card p { font-size: 10.5px; color: var(--dim); margin-top: 3px; line-height: 1.35; }
+.badge {
+  display: inline-block; font-size: 9px; font-weight: 800;
+  padding: 2px 6px; border-radius: 6px; margin-left: 4px; vertical-align: middle;
+}
+.badge.hot { background: rgba(240,113,120,0.2); color: var(--red); }
+.badge.new { background: rgba(59,158,255,0.2); color: var(--blue); }
+.badge.on { background: rgba(45,212,160,0.2); color: var(--green); }
+
+/* CHAT VIEW */
+#view-chat, #view-tools, #view-scan, #view-software, #view-machine, #view-key { display: none; }
+#view-chat.active, #view-tools.active, #view-scan.active, #view-software.active, #view-machine.active, #view-key.active { display: block; }
+
+.chat-box {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 12px; min-height: 280px; max-height: 52vh;
+  overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
+}
+.msg { max-width: 92%; padding: 10px 12px; border-radius: 12px; font-size: 13.5px; line-height: 1.5; }
+.msg.ai { align-self: flex-start; background: rgba(59,158,255,0.08); border: 1px solid rgba(59,158,255,0.15); }
+.msg.user { align-self: flex-end; background: rgba(245,185,66,0.1); border: 1px solid rgba(245,185,66,0.2); }
+.msg .who { font-size: 10px; font-weight: 700; opacity: 0.55; margin-bottom: 3px; }
+.msg.typing { opacity: 0.6; font-style: italic; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.chip {
+  padding: 7px 11px; border-radius: 18px; font-size: 11.5px; font-weight: 600;
+  background: rgba(59,158,255,0.1); border: 1px solid rgba(59,158,255,0.22);
+  color: var(--blue); cursor: pointer; touch-action: manipulation;
+}
+
+/* BOTTOM INPUT */
+.bottom-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto;
+  background: rgba(6,8,15,0.95); backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border); padding: 10px 12px 14px; z-index: 50;
+}
+.input-row { display: flex; gap: 7px; align-items: flex-end; }
+.input-row textarea {
+  flex: 1; min-height: 42px; max-height: 90px; padding: 11px 12px;
+  border-radius: 12px; border: 1px solid var(--border);
+  background: var(--card2); color: #fff; font-size: 14px;
+  resize: none; outline: none; font-family: inherit;
+}
+.ibtn {
+  width: 42px; height: 42px; border-radius: 50%; border: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; cursor: pointer; flex-shrink: 0; touch-action: manipulation;
+}
+.ibtn.mic { background: linear-gradient(135deg, var(--purple), #6d4aff); color: #fff; }
+.ibtn.cam { background: linear-gradient(135deg, var(--blue), #1a7ae0); color: #fff; }
+.ibtn.send { background: linear-gradient(135deg, var(--gold), #d4a017); color: #111; font-weight: 800; }
+.ibtn.listening { background: linear-gradient(135deg, var(--red), #c43c45); animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(240,113,120,0.4)} 50%{box-shadow:0 0 0 8px transparent} }
+
+.nav-tabs {
+  display: flex; gap: 4px; margin-bottom: 8px; overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.nav-tab {
+  flex-shrink: 0; padding: 6px 12px; border-radius: 16px; font-size: 11.5px; font-weight: 600;
+  border: 1px solid var(--border); background: transparent; color: var(--dim);
+  cursor: pointer; touch-action: manipulation;
+}
+.nav-tab.active { background: rgba(245,185,66,0.12); border-color: var(--gold); color: var(--gold); }
+
+/* SCAN */
+.preview {
+  width: 100%; height: 180px; border-radius: 14px; background: #0a0e16;
+  border: 1px dashed var(--border); display: flex; align-items: center; justify-content: center;
+  overflow: hidden; margin-bottom: 10px;
+}
+.preview img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.preview .ph { color: var(--dim); font-size: 13px; text-align: center; }
+.btn-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.btn {
+  flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700;
+  font-size: 13px; cursor: pointer; touch-action: manipulation; color: #fff;
+}
+.btn.cam { background: linear-gradient(135deg, #1a7ae0, #3b9eff); }
+.btn.gal { background: linear-gradient(135deg, #0d9b6a, #2dd4a0); }
+.btn.gold { background: linear-gradient(135deg, var(--gold), #d4a017); color: #111; width: 100%; }
+.btn.full { width: 100%; }
+
+/* SOFTWARE BOXES */
+.soft-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.soft-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 12px; cursor: pointer; touch-action: manipulation;
+}
+.soft-card h4 { font-size: 12px; font-weight: 700; margin-bottom: 3px; }
+.soft-card p { font-size: 10.5px; color: var(--dim); }
+.soft-card.brand { border-color: rgba(245,185,66,0.25); }
+
+/* KEY */
+.key-box {
+  background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px;
+}
+.key-box label { font-size: 12px; color: var(--gold); font-weight: 600; }
+.key-box input {
+  width: 100%; padding: 12px; margin: 8px 0 12px; border-radius: 10px;
+  background: var(--card2); border: 1px solid var(--border); color: #fff; font-size: 13px;
+}
+.small-btn {
+  padding: 9px 16px; border: none; border-radius: 10px; font-weight: 700;
+  font-size: 12px; cursor: pointer; margin-right: 6px;
+}
+input[type=file] { display: none; }
+.back-btn {
+  display: inline-flex; align-items: center; gap: 4px; font-size: 12px;
+  color: var(--dim); background: none; border: none; cursor: pointer;
+  margin-bottom: 10px; font-weight: 600;
+}
+.detail-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+  padding: 14px; margin-top: 10px; font-size: 13px; line-height: 1.55;
+}
+.detail-card h3 { font-size: 14px; margin-bottom: 8px; color: var(--gold); }
+.detail-card li { margin: 4px 0 4px 16px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-row">
+    <div class="logo-icon">⚡</div>
+    <div class="logo-text">
+      <h1>Mahakal Mobile Hub</h1>
+      <p>REPAIR MASTER PRO</p>
+    </div>
+  </div>
+  <div class="status-pill" id="statusPill"><span class="dot"></span> <span id="statusText">Checking...</span></div>
+</header>
+
+<div class="main">
+  <!-- TOOLS HOME -->
+  <div id="view-tools" class="active">
+    <div class="section-label">Master Tools</div>
+    <div class="tool-grid">
+      <div class="tool-card" onclick="showView('chat')">
+        <div class="icon" style="background:rgba(59,158,255,0.15)">💬</div>
+        <h3>AI Chat</h3>
+        <p>Model + fault पूछो, जवाब पाओ</p>
+      </div>
+      <div class="tool-card" onclick="showView('scan')">
+        <div class="icon" style="background:rgba(45,212,160,0.15)">📷</div>
+        <h3>Board Scanner</h3>
+        <p>फोटो से फॉल्ट विश्लेषण</p>
+      </div>
+      <div class="tool-card" onclick="showView('software')">
+        <div class="icon" style="background:rgba(245,185,66,0.15)">💻</div>
+        <h3>Software & Flashing <span class="badge hot">HOT</span></h3>
+        <p>UnlockTool, UMT, Odin, SP</p>
+      </div>
+      <div class="tool-card" onclick="askQuick('board schematic jumper map common rails')">
+        <div class="icon" style="background:rgba(155,123,255,0.15)">🗺️</div>
+        <h3>Schematics <span class="badge new">NEW</span></h3>
+        <p>PCB tracks & voltage rails</p>
+      </div>
+      <div class="tool-card" onclick="askQuick('6 step dead phone diagnostic trainer')">
+        <div class="icon" style="background:rgba(59,158,255,0.15)">🔧</div>
+        <h3>6-Step Trainer</h3>
+        <p>Visual to DC boot sequence</p>
+      </div>
+      <div class="tool-card" onclick="showView('machine')">
+        <div class="icon" style="background:rgba(240,113,120,0.15)">🔥</div>
+        <h3>Machine Temp</h3>
+        <p>Hot air, iron, BGA presets</p>
+      </div>
+      <div class="tool-card" onclick="askQuick('diode mode voltage table main rails VPH PP_BATT')">
+        <div class="icon" style="background:rgba(45,212,160,0.15)">📊</div>
+        <h3>Diode & Voltage</h3>
+        <p>Quick multimeter values</p>
+      </div>
+      <div class="tool-card" onclick="showView('key')">
+        <div class="icon" style="background:rgba(245,185,66,0.15)">🔑</div>
+        <h3>API Key</h3>
+        <p>Gemini key settings</p>
+      </div>
+    </div>
+
+    <div class="section-label">Quick Diagnostics</div>
+    <div class="chips">
+      <span class="chip" onclick="askQuick('Dead phone no power boot sequence')">⚡ Dead Phone</span>
+      <span class="chip" onclick="askQuick('PMIC short VPH_PWR find hot point')">🔍 PMIC Short</span>
+      <span class="chip" onclick="askQuick('Charging 0.00A fake charge OVP')">🔋 0.00A Charge</span>
+      <span class="chip" onclick="askQuick('Backlight IC no display light')">💡 Backlight</span>
+      <span class="chip" onclick="askQuick('Network no service baseband')">📶 Network</span>
+      <span class="chip" onclick="askQuick('iPhone Tristar U2 no charge')">📱 iPhone Charge</span>
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div id="view-chat">
+    <button class="back-btn" onclick="showView('tools')">← Tools</button>
+    <div class="chat-box" id="chatBox">
+      <div class="msg ai"><div class="who">AI</div>नमस्ते। मॉडल + समस्या बताओ, या बोर्ड की फोटो भेजो। जैसे: Redmi Note 12 no power</div>
+    </div>
+    <div class="chips">
+      <span class="chip" onclick="quickChip('Redmi 4a no power')">Redmi 4a dead</span>
+      <span class="chip" onclick="quickChip('iPhone 11 no charge')">iPhone 11 charge</span>
+      <span class="chip" onclick="quickChip('Samsung S23 no power')">S23 no power</span>
+      <span class="chip" onclick="quickChip('PMIC short kaise nikale')">PMIC short</span>
+    </div>
+  </div>
+
+  <!-- SCAN -->
+  <div id="view-scan">
+    <button class="back-btn" onclick="showView('tools')">← Tools</button>
+    <div class="preview" id="scanPreview"><div class="ph">📷 बोर्ड फोटो डालो<br>कैमरा या गैलरी</div></div>
+    <div class="btn-row">
+      <label class="btn cam" for="camInput">📷 कैमरा</label>
+      <label class="btn gal" for="galInput">🖼️ गैलरी</label>
+    </div>
+    <input type="file" id="camInput" accept="image/*" capture="environment" onchange="onPhoto(event)">
+    <input type="file" id="galInput" accept="image/*" onchange="onPhoto(event)">
+    <button class="btn gold full" onclick="runScan()">🚀 AI स्कैन शुरू</button>
+    <div id="scanResult" style="margin-top:12px;"></div>
+  </div>
+
+  <!-- SOFTWARE -->
+  <div id="view-software">
+    <button class="back-btn" onclick="showView('tools')">← Tools</button>
+    <div class="section-label">All Brands</div>
+    <div class="soft-grid">
+      <div class="soft-card brand" onclick="softDetail('UnlockTool')">
+        <h4>UnlockTool</h4>
+        <p>FRP • Mi Account • EDL</p>
+      </div>
+      <div class="soft-card" onclick="softDetail('UMT')">
+        <h4>UMT QcFire</h4>
+        <p>Qualcomm flashing</p>
+      </div>
+      <div class="soft-card" onclick="softDetail('SP Flash')">
+        <h4>SP Flash Tool</h4>
+        <p>MediaTek full flash</p>
+      </div>
+      <div class="soft-card" onclick="softDetail('Odin')">
+        <h4>Odin</h4>
+        <p>Samsung 4-file flash</p>
+      </div>
+      <div class="soft-card" onclick="softDetail('Xiaomi Fastboot')">
+        <h4>Xiaomi Fastboot</h4>
+        <p>MiFlash ROM</p>
+      </div>
+      <div class="soft-card" onclick="softDetail('Qualcomm 9008')">
+        <h4>Qualcomm 9008</h4>
+        <p>EDL dead boot</p>
+      </div>
+    </div>
+    <div id="softDetail" class="detail-card" style="display:none;"></div>
+  </div>
+
+  <!-- MACHINE -->
+  <div id="view-machine">
+    <button class="back-btn" onclick="showView('tools')">← Tools</button>
+    <div class="section-label">Select Machine</div>
+    <select id="machineSel" style="width:100%;padding:12px;border-radius:12px;background:var(--card2);border:1px solid var(--border);color:#fff;font-size:13px;margin-bottom:10px;">
+      <option value="hotair">Hot Air Station</option>
+      <option value="iron">Soldering Iron</option>
+      <option value="bga">BGA Rework</option>
+      <option value="preheat">Preheater + Hot Air</option>
+    </select>
+    <button class="btn gold full" onclick="showMachine()">⚡ सेटिंग्स दिखाओ</button>
+    <div id="machineOut" class="detail-card" style="display:none;margin-top:12px;"></div>
+  </div>
+
+  <!-- KEY -->
+  <div id="view-key">
+    <button class="back-btn" onclick="showView('tools')">← Tools</button>
+    <div class="key-box">
+      <label>Gemini API Key</label>
+      <input type="text" id="apiKeyInput" placeholder="AQ... या AIza... Key पेस्ट करो" autocomplete="off">
+      <button class="small-btn" style="background:var(--green);color:#111" onclick="saveKey()">💾 Save</button>
+      <button class="small-btn" style="background:var(--red);color:#fff" onclick="clearKey()">Clear</button>
+      <p id="keyStatus" style="margin-top:12px;font-size:12px;color:var(--dim)">Key: Not set</p>
+      <p style="margin-top:10px;font-size:11px;color:var(--dim);line-height:1.4">
+        Vercel पर डिप्लॉय करते समय Key को Environment Variable <code style="color:var(--gold)">GEMINI_API_KEY</code> में रखना। लोकल में यहाँ Save करो।
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-bar" id="bottomBar">
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-v="tools" onclick="showView('tools')">🛠️ Tools</button>
+    <button class="nav-tab" data-v="chat" onclick="showView('chat')">💬 Chat</button>
+    <button class="nav-tab" data-v="scan" onclick="showView('scan')">📷 Scan</button>
+    <button class="nav-tab" data-v="software" onclick="showView('software')">💻 Soft</button>
+  </div>
+  <div class="input-row">
+    <button class="ibtn mic" id="micBtn" onclick="toggleMic()">🎤</button>
+    <label class="ibtn cam" for="chatCam">📷</label>
+    <input type="file" id="chatCam" accept="image/*" capture="environment" onchange="onChatPhoto(event)">
+    <textarea id="userInput" rows="1" placeholder="Model + problem..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}"></textarea>
+    <button class="ibtn send" onclick="sendMsg()">➤</button>
+  </div>
+</div>
+
+<script>
+const SYSTEM = `You are a smart helpful assistant for Mahakal Mobile Hub.
+You are an expert in mobile motherboard repair, but you can also answer ANY other question (general knowledge, cooking, daily life, study, etc.) in a friendly way.
+Reply in simple Hindi if user writes Hindi, else match user language.
+For mobile repair: be technical, step-by-step (faults, IC, rails, short finding, temps, flashing).
+For other topics: answer normally and helpfully — do not refuse or say you only do mobile repair.
+Do NOT introduce yourself by name every time. Do not repeat branding.
+Keep answers clear. If board photo is sent, analyze faults and next steps.`;
+
+let lang = 'hi';
+let lastPhoto = null;
+let recognizing = false;
+let recognition = null;
+
+function showView(name) {
+  ['tools','chat','scan','software','machine','key'].forEach(v => {
+    const el = document.getElementById('view-' + v);
+    if (el) el.classList.toggle('active', v === name);
+  });
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.v === name);
+  });
+  if (name === 'key') loadKeyUI();
+  window.scrollTo(0, 0);
+}
+
+function addMsg(text, who) {
+  const box = document.getElementById('chatBox');
+  const div = document.createElement('div');
+  div.className = 'msg ' + who;
+  div.innerHTML = '<div class="who">' + (who === 'ai' ? 'AI' : 'आप') + '</div>' + text;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  if (who === 'ai') speak(text.replace(/<[^>]+>/g, ' '));
+}
+function addTyping() {
+  const box = document.getElementById('chatBox');
+  const div = document.createElement('div');
+  div.className = 'msg ai typing';
+  div.id = 'typing';
+  div.innerHTML = '<div class="who">AI</div>सोच रहा हूँ...';
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+function removeTyping() {
+  const t = document.getElementById('typing');
+  if (t) t.remove();
+}
+
+function quickChip(q) {
+  document.getElementById('userInput').value = q;
+  showView('chat');
+  sendMsg();
+}
+function askQuick(q) {
+  showView('chat');
+  document.getElementById('userInput').value = q;
+  sendMsg();
+}
+
+async function sendMsg() {
+  const inp = document.getElementById('userInput');
+  const q = (inp.value || '').trim();
+  if (!q) return;
+  showView('chat');
+  addMsg(q, 'user');
+  inp.value = '';
+  addTyping();
+  try {
+    const ans = await callGemini(q, null);
+    removeTyping();
+    addMsg(ans, 'ai');
+  } catch (e) {
+    removeTyping();
+    addMsg('❌ ' + (e.message || e) + '<br><br>' + offline(q), 'ai');
+  }
+}
+
+async function callGemini(text, imageB64) {
+  // 1) Try Vercel server API (key safe on server)
+  try {
+    let mime = 'image/jpeg';
+    let b64 = imageB64 || null;
+    if (b64 && b64.startsWith('data:')) {
+      const m = b64.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
+      if (m) { mime = m[1]; b64 = m[2]; }
+    }
+    const r = await fetch('/api/gemini', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: text, imageBase64: b64, mimeType: mime })
+    });
+    if (r.ok) {
+      const data = await r.json();
+      if (data.text) return String(data.text).replace(/\n/g, '<br>');
+    }
+  } catch (e) { /* local file or no api — fallback */ }
+
+  // 2) Direct Gemini with localStorage key
+  const key = localStorage.getItem('mahakal_key');
+  if (!key) return offline(text) + '<br><br>⚠️ Key नहीं है — Key टैब में डालो। (Vercel पर GEMINI_API_KEY env लगाओ)';
+
+  const parts = [];
+  if (imageB64) {
+    let b64 = imageB64, mime = 'image/jpeg';
+    if (b64.startsWith('data:')) {
+      const m = b64.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
+      if (m) { mime = m[1]; b64 = m[2]; }
+    }
+    parts.push({ inline_data: { mime_type: mime, data: b64 } });
+  }
+  parts.push({ text: SYSTEM + '\n\nUser: ' + text });
+
+  const models = ['gemini-flash-latest', 'gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-2.5-flash'];
+  let lastErr = '';
+  for (const model of models) {
+    try {
+      const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(key);
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts }],
+          generationConfig: { temperature: 0.35, maxOutputTokens: 900 }
+        })
+      });
+      const raw = await res.text();
+      let data; try { data = JSON.parse(raw); } catch { lastErr = 'Bad JSON'; continue; }
+      if (!res.ok) {
+        lastErr = (data.error && data.error.message) || ('HTTP ' + res.status);
+        if (res.status === 403 || (lastErr + '').toLowerCase().includes('api key')) {
+          return '❌ Key समस्या: ' + lastErr;
+        }
+        continue;
+      }
+      const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (reply) return reply.replace(/\n/g, '<br>');
+      lastErr = 'Empty from ' + model;
+    } catch (e) {
+      lastErr = e.message || String(e);
+      if (/Failed to fetch|NetworkError|CORS/i.test(lastErr)) {
+        return '❌ नेटवर्क/CORS। Vercel पर deploy + GEMINI_API_KEY env से ठीक होगा।';
+      }
+    }
+  }
+  return '❌ कनेक्ट नहीं हुआ: ' + lastErr;
+}
+
+function offline(q) {
+  q = (q || '').toLowerCase();
+  if (/4a|redmi 4/.test(q)) return '<b>Redmi 4A Dead</b><br>अक्सर Power IC (PM8937) या VPH कैप शॉर्ट। रेजिस्टेंस नापो → 1V इंजेक्ट → हॉट पॉइंट → कैप/IC बदलो।';
+  if (/11/.test(q) && /charge|चार्ज/.test(q)) return '<b>iPhone 11 No Charge</b><br>Tristar/U2 IC। पोर्ट साफ → IC चेक → Hot Air 320-350°C रिप्लेस।';
+  if (/s23|s24/.test(q)) return '<b>S23/S24</b><br>0.75V रेल शॉर्ट (PMIC) या OVP बर्न्ट। थर्मल + लो वोल्टेज इंजेक्ट।';
+  if (/pmic|short|शॉर्ट/.test(q)) return '<b>शॉर्ट</b><br>मेन रेल रेजिस्टेंस → ~0Ω तो 1-1.5V इंजेक्ट → हॉट पॉइंट → कैप हटाकर टेस्ट।';
+  if (/hot air|temp|टेम्प/.test(q)) return '<b>Hot Air</b>: 3-5mm | 320-360°C | एयर 40-60% | प्रीहीट 120°C | 8-15 सेकंड।';
+  if (/unlock|frp|umt|odin|flash|9008/.test(q)) return softText(q);
+  return 'मॉडल + सिम्टम बताओ (जैसे Redmi Note 12 no power)। फोटो भी भेज सकते हो।';
+}
+
+function softText(q) {
+  if (/unlock/.test(q)) return '<b>UnlockTool</b><br>1. Brand चुनो 2. मॉडल चुनो 3. EDL 9008 या BROM में कनेक्ट 4. Erase FRP / Factory Reset। ड्राइवर: QDLoader 9008 + MTK।';
+  if (/umt/.test(q)) return '<b>UMT QcFire</b><br>Qualcomm फ्लैश/अनलॉक। EDL मोड, सही फायर लोड, Write।';
+  if (/odin|samsung/.test(q)) return '<b>Odin</b><br>Download mode (Vol+ Vol- Power)। BL/AP/CP/CSC फाइल। Auto Reboot।';
+  if (/sp flash|mediatek|mtk/.test(q)) return '<b>SP Flash</b><br>Scatter लोड → Download Only → बंद फोन USB। BROM/Preloader।';
+  if (/9008|edl|qualcomm/.test(q)) return '<b>Qualcomm 9008</b><br>Test point शॉर्ट से EDL। QDLoader ड्राइवर। UnlockTool/UMT से फ्लैश।';
+  return '<b>Software</b><br>UnlockTool (FRP/EDL), UMT, SP Flash (MTK), Odin (Samsung), MiFlash (Xiaomi)। मॉडल बताओ तो स्टेप दूँगा।';
+}
+
+function softDetail(name) {
+  const map = {
+    'UnlockTool': softText('unlock'),
+    'UMT': softText('umt'),
+    'SP Flash': softText('sp flash'),
+    'Odin': softText('odin'),
+    'Xiaomi Fastboot': '<b>Xiaomi Fastboot</b><br>Fastboot mode (Vol- Power)। MiFlash में ROM फोल्डर चुनो → Flash। अनलॉक बूटलोडर जरूरी।',
+    'Qualcomm 9008': softText('9008')
+  };
+  const el = document.getElementById('softDetail');
+  el.style.display = 'block';
+  el.innerHTML = '<h3>' + name + '</h3>' + (map[name] || softText(name));
+  speak(name + ' गाइड तैयार');
+}
+
+function showMachine() {
+  const t = document.getElementById('machineSel').value;
+  const map = {
+    hotair: 'Hot Air: नोजल 3-5mm | 320-360°C | एयर 40-60% | प्रीहीट 120°C | IC पर 8-15 सेकंड | फ्लक्स ज्यादा। कम टेम्प से शुरू। Kapton टेप।',
+    iron: 'Iron: टिप 0.5-1mm | 320-350°C | लीड-फ्री सोल्डर | फ्लक्स पेस्ट | जल्दी काम।',
+    bga: 'BGA: प्रीहीट 140-160°C | टॉप 220-245°C | 3-स्टेज प्रोफाइल | धीरे कूल | स्टेंसिल।',
+    preheat: 'Preheater + Hot Air: बॉटम 100-130°C | टॉप 300-340°C | 15-25 सेकंड।'
+  };
+  const el = document.getElementById('machineOut');
+  el.style.display = 'block';
+  el.innerHTML = '<h3>Settings</h3>' + map[t];
+  speak(map[t]);
+}
+
+function onPhoto(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    lastPhoto = ev.target.result;
+    document.getElementById('scanPreview').innerHTML = '<img src="' + ev.target.result + '">';
+  };
+  r.readAsDataURL(f);
+}
+async function runScan() {
+  if (!lastPhoto) { alert('पहले फोटो डालो'); return; }
+  const res = document.getElementById('scanResult');
+  res.innerHTML = '<div class="msg ai typing">स्कैन हो रहा है...</div>';
+  try {
+    const ans = await callGemini('इस मोबाइल मदरबोर्ड फोटो को देखो। संभावित डैमेज, शॉर्ट, जले पार्ट या IC बताओ। अगले डायग्नोस्टिक और रिपेयर स्टेप दो। नाम या ब्रांड बार-बार मत दोहराओ।', lastPhoto);
+    res.innerHTML = '<div class="detail-card"><h3>Scan Result</h3>' + ans + '</div>';
+  } catch (e) {
+    res.innerHTML = '<div class="detail-card">❌ ' + (e.message || e) + '</div>';
+  }
+}
+async function onChatPhoto(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = async ev => {
+    lastPhoto = ev.target.result;
+    showView('chat');
+    addMsg('📷 फोटो', 'user');
+    addTyping();
+    try {
+      const ans = await callGemini('बोर्ड/PCB फोटो देखकर संभावित फॉल्ट और अगले स्टेप बताओ। अनावश्यक नाम न लो।', lastPhoto);
+      removeTyping();
+      addMsg(ans, 'ai');
+    } catch (err) {
+      removeTyping();
+      addMsg('❌ फोटो एरर। मॉडल + सिम्टम लिखो।', 'ai');
+    }
+  };
+  r.readAsDataURL(f);
+}
+
+function speak(t) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  let s = (t || '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/[#*_`~\[\](){}|>]/g, ' ')
+    .replace(/\*+/g, ' ')
+    .replace(/#+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!s) return;
+  // Speak in chunks so long answers are fully read
+  const chunkSize = 200;
+  const chunks = [];
+  for (let i = 0; i < s.length; i += chunkSize) chunks.push(s.substring(i, i + chunkSize));
+  let idx = 0;
+  function next() {
+    if (idx >= chunks.length) return;
+    const u = new SpeechSynthesisUtterance(chunks[idx++]);
+    u.lang = 'hi-IN';
+    u.rate = 0.92;
+    u.pitch = 1;
+    u.onend = next;
+    window.speechSynthesis.speak(u);
+  }
+  next();
+}
+function toggleMic() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { alert('वॉयस सपोर्ट नहीं'); return; }
+  if (!recognition) { recognition = new SR(); recognition.continuous = false; recognition.interimResults = false; }
+  const btn = document.getElementById('micBtn');
+  if (recognizing) { recognition.stop(); recognizing = false; btn.classList.remove('listening'); return; }
+  recognition.lang = 'hi-IN';
+  recognition.onresult = e => { document.getElementById('userInput').value = e.results[0][0].transcript; sendMsg(); };
+  recognition.onend = () => { recognizing = false; btn.classList.remove('listening'); };
+  recognition.start(); recognizing = true; btn.classList.add('listening');
+}
+
+function saveKey() {
+  const k = document.getElementById('apiKeyInput').value.trim();
+  if (!k) { alert('Key डालो'); return; }
+  localStorage.setItem('mahakal_key', k);
+  loadKeyUI();
+  alert('✅ Key सेव');
+}
+function clearKey() {
+  localStorage.removeItem('mahakal_key');
+  document.getElementById('apiKeyInput').value = '';
+  loadKeyUI();
+}
+function loadKeyUI() {
+  let key = '';
+  try { key = localStorage.getItem('mahakal_key') || ''; } catch (e) {}
+  const inp = document.getElementById('apiKeyInput');
+  const st = document.getElementById('keyStatus');
+  const pill = document.getElementById('statusPill');
+  const txt = document.getElementById('statusText');
+  if (inp) inp.value = key;
+  if (st) {
+    st.textContent = key ? 'Key Saved ✓' : 'Key: Not set';
+    st.style.color = key ? 'var(--green)' : 'var(--dim)';
+  }
+  if (pill && txt) {
+    if (key) { pill.className = 'status-pill on'; txt.textContent = 'Gemini Active'; }
+    else { pill.className = 'status-pill'; txt.textContent = 'No Key • Offline'; }
+  }
+}
+loadKeyUI();
+</script>
+</body>
+</html>
